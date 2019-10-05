@@ -1,6 +1,6 @@
 const express = require('express')
+const filterToken = require("./services/auth");
 
-const SessionControler = require('./controllers/SessionController')
 const FlatmateController = require('./controllers/FlatmateController')
 const CashierController = require('./controllers/CashierController')
 const TransactionController = require('./controllers/TransactionController')
@@ -9,16 +9,18 @@ const UserController = require('./controllers/UserController')
 
 const routes = express.Router()
 
-routes.get('/', (req,res) => {
-    res.json({status: 'ok'})
+routes.get('/', (req, res) => {
+    res.json({ status: 'ok' })
 })
 
-routes.get('/session', SessionControler.show)
-routes.post('/session', SessionControler.store)
+routes.post('/register', UserController.register)
+routes.post('/authenticate', AuthController.authenticate)
+
+routes.use(filterToken);
+
+routes.get('/me', AuthController.me)
 
 routes.put('/user/requiredFirstStep', UserController.requiredFirstStep)
-
-routes.post('/auth/login', AuthController.login)
 
 routes.post('/flatmate', FlatmateController.store)
 

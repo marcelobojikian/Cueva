@@ -7,3 +7,5 @@ yarn-error.log
 
 # Data system
 #
+database.json
+users.json
