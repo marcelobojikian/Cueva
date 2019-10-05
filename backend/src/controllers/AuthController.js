@@ -1,9 +1,10 @@
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 
+// INDEX, SHOW, STORE, UPDATE, DELETE
 module.exports = {
 
-    async authenticate(req, res) {
+    async show(req, res) {
 
         const { storeUser } = req;
 
@@ -13,7 +14,7 @@ module.exports = {
             const mail = user.mail.split('.').join('\\.')
 
             if (!storeUser.has(mail)) {
-                return res.status(400).json({ error: "User already exists" });
+                return res.status(400).json({ message: "User already exists" });
             }
 
             const userInfo = storeUser.get(mail)
@@ -21,7 +22,7 @@ module.exports = {
             const correct = await bcrypt.compare(user.password, userInfo.password);
 
             if (!correct) {
-                return res.status(400).json({ error: "Invalid password" });
+                return res.status(400).json({ message: "Invalid password" });
             }
 
             const { invitedBy, requiredFirstStep } = userInfo
@@ -34,22 +35,9 @@ module.exports = {
             });
 
         } catch (err) {
-            return res.status(400).json({ error: "User authentication failed" });
+            return res.status(400).json({ message: "User authentication failed" });
         }
 
-    },
-
-    async me(req, res) {
-        try {
-            const { storeUser, userId } = req;
-            const mail = userId.split('.').join('\\.')
-
-            const userInfo = storeUser.get(mail)
-
-            return res.json({ mail: userId, requiredFirstStep: userInfo.requiredFirstStep });
-        } catch (err) {
-            return res.status(400).json({ error: "Can't get user information" });
-        }
     }
 
 }

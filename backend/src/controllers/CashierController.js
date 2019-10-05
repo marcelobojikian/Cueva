@@ -2,22 +2,17 @@ module.exports = {
 
     store(req, res) {
 
-        const user_id = req.headers.user_id
-        const id = user_id ? user_id.split('.').join('\\.') : null
+        const { storeApp, userId } = req
+        const { cashiers } = req.body
 
-        const { storeApp, body } = req;
-        const { cashiers } = body
+        const id = userId.split('.').join('\\.')
 
-        if (id && storeApp.has(id)) {
-            const userInfo = storeApp.get(id)
+        const userInfo = storeApp.get(id)
 
-            userInfo.cashiers = cashiers
-            storeApp.set(id, userInfo);
-        } else {
-            res.json({ status: 'User not exist' })
-        }
+        userInfo.cashiers = cashiers
+        storeApp.set(id, userInfo);
 
-        res.json({ status: 'ok' })
+        res.json({ message: 'Sucess' })
 
     }
 

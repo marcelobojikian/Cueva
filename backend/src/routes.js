@@ -1,11 +1,13 @@
 const express = require('express')
-const filterToken = require("./services/auth");
+const authorization = require("./filters/Authorization")
+const database = require("./filters/Database")
 
 const FlatmateController = require('./controllers/FlatmateController')
 const CashierController = require('./controllers/CashierController')
 const TransactionController = require('./controllers/TransactionController')
 const AuthController = require('./controllers/AuthController')
 const UserController = require('./controllers/UserController')
+const GuestController = require('./controllers/GuestController')
 
 const routes = express.Router()
 
@@ -13,19 +15,18 @@ routes.get('/', (req, res) => {
     res.json({ status: 'ok' })
 })
 
-routes.post('/register', UserController.register)
-routes.post('/authenticate', AuthController.authenticate)
+routes.post('/register', UserController.store)
+routes.post('/authenticate', AuthController.show)
 
-routes.use(filterToken);
+routes.use(authorization)
+routes.use(database.prepareUser)
 
-routes.get('/me', AuthController.me)
-
-routes.put('/user/requiredFirstStep', UserController.requiredFirstStep)
+routes.post('/user/guest', GuestController.store)
+routes.put('/user/update', UserController.update)
 
 routes.post('/flatmate', FlatmateController.store)
-
 routes.post('/cashier', CashierController.store)
-routes.post('/cashier/:name/withdraw', TransactionController.withdraw)
-routes.post('/cashier/:name/deposit', TransactionController.deposit)
+
+routes.post('/cashier/:cashierName/:action', TransactionController.store)
 
 module.exports = routes;

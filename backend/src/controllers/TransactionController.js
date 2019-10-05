@@ -1,94 +1,42 @@
 module.exports = {
 
-    withdraw(req, res) {
+    store(req, res) {
 
-        const cashierName = req.params.name;
+        const { storeApp, userId } = req
 
-        const user_id = req.headers.user_id
-        const id = user_id ? user_id.replace(".", "\\.") : null
+        const {cashierName, action} = req.params
+        const { value } = req.body
 
-        const { storeApp, body } = req;
-        const { value } = body
-
-        if (id && storeApp.has(id)) {
-            const userInfo = storeApp.get(id)
-
-            const cashierArray = userInfo.cashiers
-            const cashier = cashierArray.find(({ name }) => { return name === cashierName });
-
-            if (!cashier) {
-                return res.json({ status: 'Cashier not exist' })
-            } else {
-
-                const transactions = !userInfo.transactions ? [] : userInfo.transactions;
-
-                const newTransactions = [
-                    ...transactions,
-                    {
-                        owner: user_id,
-                        action: 'withdraw',
-                        value: value
-                    }
-                ]
-
-                userInfo.transactions = newTransactions
-                
-                console.log('Param:', cashierName, 'balance now:', cashier.balance, 'withdraw:', value)
-                //userInfo.cashiers = cashiers
-                storeApp.set(id, userInfo);
-
-            }
-        } else {
-            return res.json({ status: 'User not exist' })
+        if (action != 'deposit' && action != 'withdraw') {
+            return res.status(400).json({ message: 'Action invalid' })
         }
 
-        return res.json({ status: 'ok' })
+        const id = userId.split('.').join('\\.')
 
-    },
+        const userInfo = storeApp.get(id)
 
-    deposit(req, res) {
+        const cashierArray = userInfo.cashiers
+        const cashier = cashierArray.find(({ name }) => { return name === cashierName });
 
-        const cashierName = req.params.name;
-
-        const user_id = req.headers.user_id
-        const id = user_id ? user_id.split('.').join('\\.') : null
-
-        const { storeApp, body } = req;
-        const { value } = body
-
-        if (id && storeApp.has(id)) {
-            const userInfo = storeApp.get(id)
-
-            const cashierArray = userInfo.cashiers
-            const cashier = cashierArray.find(({ name }) => { return name === cashierName });
-
-            if (!cashier) {
-                return res.json({ status: 'Cashier not exist' })
-            } else {
-
-                const transactions = !userInfo.transactions ? [] : userInfo.transactions;
-
-                const newTransactions = [
-                    ...transactions,
-                    {
-                        owner: user_id,
-                        action: 'deposit',
-                        value: value
-                    }
-                ]
-
-                userInfo.transactions = newTransactions
-
-                console.log('Param:', cashierName, 'balance now:', cashier.balance, 'deposit:', value)
-                //userInfo.cashiers = cashiers
-                storeApp.set(id, userInfo);
-
-            }
-        } else {
-            return res.json({ status: 'User not exist' })
+        if (!cashier) {
+            return res.status(400).json({ message: 'Cashier not exist' })
         }
 
-        return res.json({ status: 'ok' })
+        const transactions = !userInfo.transactions ? [] : userInfo.transactions;
+
+        const newTransactions = [
+            ...transactions,
+            {
+                owner: userId,
+                action: action,
+                value: value
+            }
+        ]
+
+        userInfo.transactions = newTransactions
+        storeApp.set(id, userInfo);
+
+        return res.json({ message: 'Sucess' })
 
     }
 
