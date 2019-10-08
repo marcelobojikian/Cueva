@@ -1,40 +1,35 @@
+const User = require('../models/User')
+
 module.exports = {
 
     // INDEX SHOW STORE UPDATE DELETE
 
-    store(req, res) {
+    async store(req, res) {
 
-        const { storeUser, userId } = req
+        const { userId } = req
         const { guests } = req.body
 
-        guests.forEach((guest) => {
+        const userInfo = await User.findById(userId)
 
-            const mailGuest = guest.mail
-
-            if (!storeUser.has(mailGuest)) {
-                const mail = mailGuest.split('.').join('\\.')
-                storeUser.set(mail, { invitedBy: [{ username: userId }], requiredFirstStep: false })
-            } else {
-
-                const guestInfo = storeUser.get(mailGuest)
-                const invites = !guestInfo.invitedBy ? [] : guestInfo.invitedBy
-
-                const exist = invites.find(({ username }) => { return username === userId });
-
-                if (!exist) {
-
-                    const newInvites = [
-                        ...invites,
-                        { username: userId }
-                    ]
-
-                    const mail = mailGuest.split('.').join('\\.')
-                    storeUser.set(mail, { invitedBy: [newInvites] })
-                }
-
+        const emails = guests.map((guest) => { return guest.mail })
+        const guestsInDB = await User.find().where('mail').in(emails)
+        guestsInDB.forEach(async (guest) => {
+            if (!guest.invitedBy.includes(userId)) {
+                console.log('Update',guest.mail,', invited by', userInfo.mail )
+                guest.invitedBy.push(userInfo)
+                await guest.save()
             }
+        })
 
-        });
+        const mailsInDB = guestsInDB.map((guest) => { return guest.mail })
+        emails.forEach(async (mail) => {
+            if(!mailsInDB.includes(mail)){
+                console.log('Create new user with', mail, 'invited by', userInfo.mail)
+                const guest = await User.create({ mail, requiredFirstStep: false })
+                guest.invitedBy.push(userInfo)
+                await guest.save()
+            }
+        })
 
         return res.json({ message: 'Sucess' })
 

@@ -1,13 +1,17 @@
 const express = require('express')
+const mongoose = require('mongoose')
 const routes = require('./routes')
+const cors = require('cors')
 
-const database = require("./filters/Database")
+const server = express()
 
-const app = express()
+mongoose.connect('mongodb://localhost/test', {
+    useNewUrlParser: true,
+    useUnifiedTopology: true
+})
 
-app.use(database.injectDatabase)
+server.use(cors())
+server.use(express.json())
+server.use(routes)
 
-app.use(express.json())
-app.use(routes)
-
-app.listen(3334)
+server.listen(3334)

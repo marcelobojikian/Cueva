@@ -1,40 +1,35 @@
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
+const User = require('../models/User')
 
 // INDEX, SHOW, STORE, UPDATE, DELETE
 module.exports = {
 
     async show(req, res) {
 
-        const { storeUser } = req;
-
         try {
 
-            const user = req.body;
-            const mail = user.mail.split('.').join('\\.')
+            const { mail, password } = req.body
 
-            if (!storeUser.has(mail)) {
-                return res.status(400).json({ message: "User already exists" });
+            const userInfo = await User.findOne({ mail })
+            if (userInfo == null) {
+                return res.status(400).json({ message: "User not exists" });
             }
 
-            const userInfo = storeUser.get(mail)
+            //console.log(mail,'user.password:', password, 'userInfo.password:', userInfo.password )
 
-            const correct = await bcrypt.compare(user.password, userInfo.password);
+            const correct = await bcrypt.compare(password, userInfo.password);
 
             if (!correct) {
                 return res.status(400).json({ message: "Invalid password" });
             }
 
-            const { invitedBy, requiredFirstStep } = userInfo
-
             return res.json({
-                mail: user.mail,
-                invitedBy,
-                requiredFirstStep,
-                token: jwt.sign({ id: user.mail }, "secret", { expiresIn: 86400 })
+                token: jwt.sign({ id: userInfo.id }, "secret", { expiresIn: 86400 })
             });
 
         } catch (err) {
+            console.log(err)
             return res.status(400).json({ message: "User authentication failed" });
         }
 

@@ -19,14 +19,14 @@ routes.post('/register', UserController.store)
 routes.post('/authenticate', AuthController.show)
 
 routes.use(authorization)
-routes.use(database.prepareUser)
+routes.use(database.existUser)
 
-routes.post('/user/guest', GuestController.store)
+routes.get('/user', UserController.show)
 routes.put('/user/update', UserController.update)
 
-routes.post('/flatmate', FlatmateController.store)
-routes.post('/cashier', CashierController.store)
-
-routes.post('/cashier/:cashierName/:action', TransactionController.store)
+routes.post('/user/guest', GuestController.store)
+routes.post('/user/flatmate', FlatmateController.store)
+routes.post('/user/cashier', CashierController.store)
+routes.post('/user/cashier/:cashierName/:action', TransactionController.store)
 
 module.exports = routes;

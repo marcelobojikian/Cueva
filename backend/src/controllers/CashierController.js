@@ -1,16 +1,13 @@
+const App = require('../models/App')
+
 module.exports = {
 
-    store(req, res) {
+    async store(req, res) {
 
-        const { storeApp, userId } = req
+        const { userId } = req
         const { cashiers } = req.body
 
-        const id = userId.split('.').join('\\.')
-
-        const userInfo = storeApp.get(id)
-
-        userInfo.cashiers = cashiers
-        storeApp.set(id, userInfo);
+        await App.update({user: userId}, {$set: {cashiers}})
 
         res.json({ message: 'Sucess' })
 

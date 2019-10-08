@@ -1,19 +1,18 @@
+const App = require('../models/App')
+
 module.exports = {
 
-    store(req, res) {
+    async store(req, res) {
 
-        const { storeApp, userId } = req
-
-        const {cashierName, action} = req.params
+        const { userId } = req
         const { value } = req.body
+        const { cashierName, action } = req.params
 
         if (action != 'deposit' && action != 'withdraw') {
             return res.status(400).json({ message: 'Action invalid' })
         }
 
-        const id = userId.split('.').join('\\.')
-
-        const userInfo = storeApp.get(id)
+        const userInfo = await App.findOne({ user: userId })
 
         const cashierArray = userInfo.cashiers
         const cashier = cashierArray.find(({ name }) => { return name === cashierName });
@@ -22,19 +21,13 @@ module.exports = {
             return res.status(400).json({ message: 'Cashier not exist' })
         }
 
-        const transactions = !userInfo.transactions ? [] : userInfo.transactions;
+        userInfo.transactions.push({
+            owner: userInfo,
+            action: action,
+            value: value
+        })
 
-        const newTransactions = [
-            ...transactions,
-            {
-                owner: userId,
-                action: action,
-                value: value
-            }
-        ]
-
-        userInfo.transactions = newTransactions
-        storeApp.set(id, userInfo);
+        userInfo.save();
 
         return res.json({ message: 'Sucess' })
 
