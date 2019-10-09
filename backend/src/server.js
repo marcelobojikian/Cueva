@@ -4,7 +4,7 @@ const routes = require('./routes')
 const cors = require('cors')
 
 //process.env.NODE_ENV = 'development';
-require('../condig/config');
+require('../config/config');
 
 const server = express()
 
