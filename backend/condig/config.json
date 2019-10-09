@@ -1,0 +1,17 @@
+{
+    "development": {
+        "config_id": "development",
+        "express_port": 3334,
+        "mongodb_URL": "'mongodb://localhost/cueva'"
+    },
+    "testing": {
+        "config_id": "testing",
+        "express_port": 3334,
+        "mongodb_URL": "mongodb+srv://<username>:<password>@cluster0-ynks4.mongodb.net/cueva?retryWrites=true&w=majority"
+    },
+    "production": {
+        "config_id": "production",
+        "express_port": 3333,
+        "mongodb_URL": "none"
+    }
+}
