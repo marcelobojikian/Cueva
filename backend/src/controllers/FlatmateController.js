@@ -1,18 +1,18 @@
 const User = require('../models/User')
-const App = require('../models/App')
+const Dashboard = require('../models/Dashboard')
 
 module.exports = {
 
     async store(req, res) {
 
-        const { userId } = req
+        const { userLogged } = req
         const { flatmates } = req.body
 
         const emails = flatmates.map((flatmate) => { return flatmate.mail })
 
-        const flatmatesObj = await User.find().where('mail').in(emails)
+        const flatmatesInDB = await User.find({ mail: { $in: emails } })
 
-        await App.findOneAndUpdate({ user: userId }, { $set: { flatmates: flatmatesObj } })
+        await Dashboard.updateMany({ user: userLogged }, { $set: { flatmates: flatmatesInDB } })
 
         return res.json({ message: 'Sucess' })
 

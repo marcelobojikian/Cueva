@@ -6,17 +6,15 @@ module.exports = {
 
     async store(req, res) {
 
-        const { userId } = req
+        const { userLogged } = req
         const { guests } = req.body
 
-        const userInfo = await User.findById(userId)
-
         const emails = guests.map((guest) => { return guest.mail })
-        const guestsInDB = await User.find().where('mail').in(emails)
+        const guestsInDB = await User.find({ mail: { $in: emails } })
         guestsInDB.forEach(async (guest) => {
-            if (!guest.invitedBy.includes(userId)) {
-                console.log('Update',guest.mail,', invited by', userInfo.mail )
-                guest.invitedBy.push(userInfo)
+            if (!guest.invitedBy.includes(userLogged.id)) {
+                console.log('Update',guest.mail,', invited by', userLogged.mail )
+                guest.invitedBy.push(userLogged)
                 await guest.save()
             }
         })
@@ -24,9 +22,9 @@ module.exports = {
         const mailsInDB = guestsInDB.map((guest) => { return guest.mail })
         emails.forEach(async (mail) => {
             if(!mailsInDB.includes(mail)){
-                console.log('Create new user with', mail, 'invited by', userInfo.mail)
+                console.log('Create new user with', mail, 'invited by', userLogged.mail)
                 const guest = await User.create({ mail, requiredFirstStep: false })
-                guest.invitedBy.push(userInfo)
+                guest.invitedBy.push(userLogged)
                 await guest.save()
             }
         })

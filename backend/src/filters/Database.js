@@ -1,5 +1,5 @@
 const User = require('../models/User')
-const App = require('../models/App')
+const Dashboard = require('../models/Dashboard')
 
 module.exports = {
 
@@ -13,10 +13,12 @@ module.exports = {
             return res.status(400).json({ message: 'User not exist' })
         }
 
-        const userAppInfo = await App.findOne({user: userId})
+        req.userLogged = user;
 
-        if(userAppInfo == null){
-            await App.create({ user: user })
+        const dashboard = await Dashboard.findOne({user: userId})
+
+        if(dashboard == null){
+            await Dashboard.create({ user: user })
         }
 
         return next();
