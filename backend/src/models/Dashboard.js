@@ -1,6 +1,6 @@
 const mongoose = require('mongoose')
 
-const AppSchema = new mongoose.Schema({
+const DashboardSchema = new mongoose.Schema({
     transactions: [
         {
             type: mongoose.Schema.Types.ObjectId,
@@ -29,4 +29,4 @@ const AppSchema = new mongoose.Schema({
     timestamps: true,
 })
 
-module.exports = mongoose.model('App', AppSchema);
+module.exports = mongoose.model('Dashboard', DashboardSchema);

@@ -1,7 +1,10 @@
 const mongoose = require('mongoose')
 
 const UserSchema = new mongoose.Schema({
-    mail: String,
+    mail: {
+        type: String,
+        required: true
+    },
     password: String,
     requiredFirstStep: Boolean,
     invitedBy: [
@@ -10,6 +13,8 @@ const UserSchema = new mongoose.Schema({
             ref: 'User'
         }
     ]
+}, {
+    timestamps: true,
 })
 
 module.exports = mongoose.model('User', UserSchema);
