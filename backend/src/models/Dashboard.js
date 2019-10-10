@@ -9,9 +9,8 @@ const DashboardSchema = new mongoose.Schema({
     ],
     cashiers: [
         {
-            name: String,
-            initial: Number,
-            balance: Number
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'Cashier'
         }
     ],
     flatmates: [

@@ -8,8 +8,9 @@ module.exports = {
         const { userId } = req
 
         const userInfo = await Dashboard.findOne({ user: userId })
-            .populate({ path: 'user', select: 'mail requiredFirstStep' })
-            .populate({ path: 'flatmates', select: 'mail' })
+            .populate({ path: 'user', select: 'mail' })
+            .populate({ path: 'flatmates', select: 'username mail' })
+            .populate({ path: 'cashiers', select: 'name balance' })
             .exec();
 
         return res.json(userInfo)

@@ -1,20 +1,19 @@
 const Dashboard = require('../models/Dashboard')
 const Transaction = require('../models/Transaction')
+const Cashier = require('../models/Cashier')
 
 module.exports = {
 
     async index(req, res) {
 
-        const { userLogged, query } = req
+        const { userLogged , query} = req
 
         const transactions = await Transaction.find({
             $and: [
                 { owner: userLogged },
                 query
             ],
-        })
-        .populate({ path: 'owner', select: 'mail' })
-        .exec();
+        }).populate({ path: 'owner', select: 'mail' }).exec();
 
         return res.json(transactions)
 
@@ -30,7 +29,9 @@ module.exports = {
         }
 
         const transactionInDB = await Transaction.findById(transaction)
-        const { cashier: cashierName, action: actionTransaction, status, value } = transactionInDB
+        const { owner, cashier, action: actionTransaction, status, value } = transactionInDB
+
+        const cashiersInDB = await Cashier.findById(cashier)
 
         if (status == 'FINISHED') {
             return res.status(400).json({ message: "Transaction finished" });
@@ -39,24 +40,28 @@ module.exports = {
         if (action == 'confirm') {
 
             const dashboard = await Dashboard.findOne({ user: userLogged })
+            const enableToConfirm = dashboard.flatmates
+            enableToConfirm.push(userLogged.id)
 
-            const cashierArray = dashboard.cashiers
-            const cashier = cashierArray.find(({ name }) => { return name === cashierName });
-
-            console.log(cashier.name, ' current:', cashier.balance)
-
-            if (actionTransaction == 'deposit') {
-                cashier.balance += value
-            } else if (actionTransaction == 'withdraw') {
-                cashier.balance -= value
+            if(!enableToConfirm.includes(owner._id)){
+                console.log(owner._id, 'not in', enableToConfirm)
+                return res.status(400).json({ message: "User does not have permission for this operation" });
             }
 
-            console.log(actionTransaction, value, 'in', cashier.name, 'Total:', cashier.balance)
+            console.log(cashiersInDB.name, ' current:', cashiersInDB.balance)
+
+            if (actionTransaction == 'deposit') {
+                cashiersInDB.balance += value
+            } else if (actionTransaction == 'withdraw') {
+                cashiersInDB.balance -= value
+            }
+
+            console.log(actionTransaction, value, 'in', cashiersInDB.name, 'Total:', cashiersInDB.balance)
 
             transactionInDB.status = 'FINISHED'
 
             transactionInDB.save()
-            dashboard.save();
+            cashiersInDB.save()
 
         }
 
@@ -75,11 +80,9 @@ module.exports = {
         }
 
         const dashboard = await Dashboard.findOne({ user: userLogged })
+        const cashiersInDB = await Cashier.findOne({ owner: userLogged, name: cashierName })
 
-        const cashierArray = dashboard.cashiers
-        const cashier = cashierArray.find(({ name }) => { return name === cashierName });
-
-        if (!cashier) {
+        if (!cashiersInDB) {
             return res.status(400).json({ message: 'Cashier not exist' })
         }
 
@@ -87,7 +90,7 @@ module.exports = {
             owner: userLogged,
             status: "CREATED",
             action: action,
-            cashier: cashierName,
+            cashier: cashiersInDB,
             value: value
         })
 

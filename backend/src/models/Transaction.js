@@ -5,8 +5,11 @@ const TransactionSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User'
     },
+    cashier: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Cashier'
+    },
     status: String,
-    cashier: String,
     action: String,
     value: Number
 },
