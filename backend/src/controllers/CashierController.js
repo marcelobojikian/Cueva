@@ -1,4 +1,5 @@
 const Dashboard = require('../models/Dashboard')
+const Cashier = require('../models/Cashier')
 
 module.exports = {
 
@@ -6,9 +7,14 @@ module.exports = {
 
         const { userLogged } = req
 
-        const userInfo = await Dashboard.findOne({ user: userLogged });
+        const cashiers = await Cashier.find({
+            $or: [
+                { owner: userLogged },
+                { owner: { $in: userLogged.invitedBy } }
+            ],
+        })
 
-        return res.json(userInfo.cashiers)
+        return res.json(cashiers)
 
     },
 
@@ -17,9 +23,14 @@ module.exports = {
         const { userLogged } = req
         const { cashiers } = req.body
 
-        cashiers.map((cashier, index) => { return cashiers[index].initial = cashier.balance })
+        cashiers.map((cashier, index) => { 
+            cashiers[index].owner = userLogged.id
+            cashiers[index].initial = cashier.balance 
+            return
+        })
 
-        await Dashboard.updateMany({user: userLogged}, {$set: {cashiers}})
+        const cashiersInDB = await Cashier.create(cashiers)
+        await Dashboard.updateMany({ user: userLogged }, { $set: { cashiers: cashiersInDB } })
 
         res.json({ message: 'Sucess' })
 

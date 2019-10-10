@@ -3,7 +3,7 @@ const mongoose = require('mongoose')
 const routes = require('./routes')
 const cors = require('cors')
 
-//process.env.NODE_ENV = 'development';
+process.env.NODE_ENV = 'development';
 require('../config/config');
 
 const server = express()

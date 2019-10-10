@@ -28,6 +28,7 @@ routes.get('/user', UserController.show)
 routes.put('/user/update', UserController.update)
 
 routes.post('/user/guest', GuestController.store)
+routes.put('/user/guest', GuestController.update)
 routes.post('/user/flatmate', FlatmateController.store)
 
 routes.get('/user/cashiers', CashierController.index)
