@@ -5,10 +5,14 @@ echo "Habilitando acesso remoto"
 echo "Local: localhost:3334"
 echo "Remote: cueva.serveo.net:3334"
 
-if ! ssh -R cueva.serveo.net:3334:localhost:3334 serveo.net
+LOCAL_URL=localhost:3334
+REMOTE_URL=cueva.serveo.net:3334
+
+echo $REMOTE_URL:$LOCAL_URL
+
+if ! autossh -o TCPKeepAlive=yes -o ServerAliveInterval=30 -o ServerAliveCountMax=3 -R $REMOTE_URL:$LOCAL_URL serveo.net
 then
     echo "Não foi possível habilitar o acesso remoto"
-    exit 1
 fi
 
 exit 1
