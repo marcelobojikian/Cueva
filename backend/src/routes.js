@@ -16,6 +16,7 @@ routes.get('/', (req, res) => {
     res.json({ status: 'ok' })
 })
 
+routes.get('/server', (req, res) => res.json({ environment: global.gConfig.config_id}))
 routes.post('/register', UserController.store)
 routes.post('/authenticate', AuthController.show)
 
@@ -29,14 +30,16 @@ routes.put('/user/update', UserController.update)
 
 routes.post('/user/guest', GuestController.store)
 routes.put('/user/guest', GuestController.update)
+
+routes.get('/user/flatmate', FlatmateController.index)
 routes.post('/user/flatmate', FlatmateController.store)
 
-routes.get('/user/cashiers', CashierController.index)
+routes.get('/user/cashier', CashierController.index)
 routes.post('/user/cashier', CashierController.store)
 
-routes.get('/user/transactions', TransactionController.index)
+routes.get('/user/transaction', TransactionController.index)
 routes.put('/user/transaction', TransactionController.update)
 
-routes.post('/user/cashier/:cashierName/:action', TransactionController.store)
+routes.post('/user/cashier/:cashier_id/:action', TransactionController.store)
 
 module.exports = routes;
